@@ -11,10 +11,10 @@ export const Navigation = () => {
     <>
       <div>
         {/* main nav */}
-        <div style={{ padding: "0 15px", backgroundColor: "gray", height: 50 }}>
+        <div style={{ padding: "0 15px", backgroundColor: "#000", height: 50 }}>
           <div className="nav_container">
             <NavLink to="/" className={({ isActive }) => (isActive ? "red" : "white")}>
-              <h5 style={{ cursor: "pointer" }}>HOME</h5>
+              <h5 style={{ cursor: "pointer" }}>ETH</h5>
             </NavLink>
             <NavLink className={({ isActive }) => (isActive ? "red" : "white")} to="/page1">
               <h5 style={{ cursor: "pointer" }}>PAGE1</h5>

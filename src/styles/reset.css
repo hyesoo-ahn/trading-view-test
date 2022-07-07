@@ -27,7 +27,8 @@ a {
   /* 푸터길이만큼 픽셀 뺀다 */
   min-height: calc(100vh - 100px);
   overflow: hidden;
-  background-color: antiquewhite;
+  /* background-color: antiquewhite; */
+  background-color: #232323;
   width: 100%;
 }
 
@@ -45,7 +46,8 @@ a {
   padding: 0 15px;
   min-height: 100px;
   height: 100%;
-  background-color: gray;
+  /* background-color: gray; */
+  background-color: #000;
   color: #fff;
   overflow: hidden;
 }

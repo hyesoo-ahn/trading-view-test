@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createChart, CrosshairMode } from "lightweight-charts";
-
-// import { areaData } from './areaData';
-// import { volumeData } from "../data/volumeData";
+import io from "socket.io-client";
 import { getCandleStickData } from "../common/fetch";
 import { dateFormat } from "../common/utils";
+const socket = io("wss://stream.binance.com:9443/ws/btcusdt@miniTicker");
 
 export default function Home() {
-  const chartContainerRef = useRef<any>(null);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
   const chart = useRef<any>(null);
   const resizeObserver = useRef<any>(null);
   const [priceData, setPriceData] = useState<any>([]);
@@ -18,7 +17,7 @@ export default function Home() {
     let temp: any = [];
     for (let i in dataResult) {
       temp.push({
-        time: dateFormat(dataResult[i][0]),
+        time: dataResult[i][0] / 1000 + 32400,
         open: dataResult[i][1],
         high: dataResult[i][2],
         low: dataResult[i][3],
@@ -42,6 +41,19 @@ export default function Home() {
           color: "#334158",
         },
       },
+      // timeScale: {
+      //   rightOffset: 50,
+      //   barSpacing: 10,
+      //   fixLeftEdge: true,
+      //   lockVisibleTimeRangeOnResize: true,
+      //   rightBarStaysOnScroll: true,
+      //   borderVisible: true,
+      //   borderColor: "#fff000",
+      //   visible: true,
+      //   timeVisible: true,
+      //   secondsVisible: true,
+      // },
+
       crosshair: {
         mode: CrosshairMode.Normal,
       },
@@ -50,32 +62,29 @@ export default function Home() {
       // },
       timeScale: {
         borderColor: "#485c7b",
+        rightOffset: 50,
+        barSpacing: 10,
+        fixLeftEdge: true,
+        lockVisibleTimeRangeOnResize: true,
+        rightBarStaysOnScroll: true,
+        borderVisible: true,
+        visible: true,
+        timeVisible: true,
+        secondsVisible: true,
       },
     });
 
-    // console.log(chart.current);
-    // console.log(chartContainerRef.current);
-
     const candleSeries = chart.current.addCandlestickSeries({
-      upColor: "#f44b5f",
-      downColor: "#2850ef",
-      borderDownColor: "#2850ef",
-      borderUpColor: "#f44b5f",
-      wickDownColor: "#2850ef",
-      wickUpColor: "#f44b5f",
+      upColor: "#ff4976",
+      downColor: "#4bffb5",
+      borderDownColor: "#4bffb5",
+      borderUpColor: "#ff4976",
+      wickDownColor: "#4bffb5",
+      wickUpColor: "#ff4976",
     });
 
     candleSeries.setData(temp);
     setPriceData(temp);
-
-    // const areaSeries = chart.current.addAreaSeries({
-    //   topColor: 'rgba(38,198,218, 0.56)',
-    //   bottomColor: 'rgba(38,198,218, 0.04)',
-    //   lineColor: 'rgba(38,198,218, 1)',
-    //   lineWidth: 2
-    // });
-
-    // areaSeries.setData(areaData);
 
     const volumeSeries = chart.current.addHistogramSeries({
       color: "#182233",
@@ -109,16 +118,49 @@ export default function Home() {
     init();
   }, []);
 
-  // Resize chart on container resizes.
+  //socket for ticker
+  const [isConnected, setIsConnected] = useState(socket.connected);
+  const [lastPong, setLastPong] = useState(null);
+
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("connect");
+      setIsConnected(true);
+    });
+
+    socket.on("disconnect", () => {
+      setIsConnected(false);
+    });
+
+    socket.on("pong", () => {
+      setLastPong(new Date().toISOString());
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("pong");
+    };
+  }, []);
+
+  const sendPing = () => {
+    socket.emit("ping");
+  };
 
   return (
     <div>
-      <h2 style={{ marginTop: 10 }}>Trading View Chart</h2>
+      <h2 style={{ marginTop: 20, color: "#fff" }}>Trading View Chart Example</h2>
       <div
-        style={{ width: "100%", height: 700 }}
+        style={{ width: "100%", height: 700, marginTop: 20 }}
         ref={chartContainerRef}
         className="chart-container"
       />
+
+      <div style={{ color: "#fff" }}>
+        <p>Connected: {"" + isConnected}</p>
+        <p>Last pong: {lastPong || "-"}</p>
+        <button onClick={sendPing}>Send ping</button>
+      </div>
     </div>
   );
 }

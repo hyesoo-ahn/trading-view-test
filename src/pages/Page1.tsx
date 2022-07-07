@@ -199,7 +199,7 @@ function Page1() {
   return (
     <>
       <div id="chart1" />
-      <div id="chart2" />
+      {/* <div id="chart2" /> */}
       {/* <h2>Start editing to see some magic happen!</h2> */}
     </>
   );
