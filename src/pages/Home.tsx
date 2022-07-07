@@ -23,18 +23,9 @@ export default function Home() {
         high: dataResult[i][2],
         low: dataResult[i][3],
         close: dataResult[i][4],
+        value: dataResult[i][8],
       });
     }
-    // temp.push({
-    //   time: dateFormat(dataResult[0][0]),
-    //   open: dataResult[0][1],
-    //   high: dataResult[0][2],
-    //   low: dataResult[0][3],
-    //   close: dataResult[0][4],
-    // });
-
-    // console.log("1", temp);
-    // setPriceData(temp);
 
     chart.current = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
@@ -75,6 +66,7 @@ export default function Home() {
     });
 
     candleSeries.setData(temp);
+    setPriceData(temp);
 
     // const areaSeries = chart.current.addAreaSeries({
     //   topColor: 'rgba(38,198,218, 0.56)',
@@ -97,6 +89,8 @@ export default function Home() {
         bottom: 0,
       },
     });
+
+    volumeSeries.setData(temp);
   };
 
   useEffect(() => {
@@ -113,8 +107,6 @@ export default function Home() {
 
   useEffect(() => {
     init();
-
-    // volumeSeries.setData(volumeData);
   }, []);
 
   // Resize chart on container resizes.
