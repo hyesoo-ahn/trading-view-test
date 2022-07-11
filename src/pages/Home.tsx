@@ -1,17 +1,34 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createChart, CrosshairMode } from "lightweight-charts";
 import io from "socket.io-client";
-import { getCandleStickData } from "../common/fetch";
+import { getCandleStick, getCandleStickData } from "../common/fetch";
 import { dateFormat } from "../common/utils";
-const socket = io("wss://stream.binance.com:9443/ws/btcusdt@miniTicker");
+import useWebSocket from "react-use-websocket";
+import { createAction } from "@reduxjs/toolkit";
+const socket = io("wss://stream.binance.com:9443/ws/etheeur@trade");
 
 export default function Home() {
+  const socketUrl = "wss://stream.binance.com:9443/stream";
+  const { sendJsonMessage, lastJsonMessage, readyState }: any = useWebSocket(socketUrl);
+  const messageHistory = useRef<MessageEvent[]>([]);
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chart = useRef<any>(null);
   const resizeObserver = useRef<any>(null);
   const [priceData, setPriceData] = useState<any>([]);
+  const [updateCandle, setUpdateCandle] = useState<any>({});
 
-  const init = async () => {
+  // 움직이는 바 만들기 chart.update 사용?
+  // 1초있다가 캔들 추가해야함..
+
+  useEffect(() => {
+    handleClickSendMessage();
+  }, []);
+
+  useEffect(() => {
+    init();
+  }, []);
+
+  const init = async (): Promise<void> => {
     const dataResult: any = await getCandleStickData();
 
     let temp: any = [];
@@ -27,8 +44,8 @@ export default function Home() {
     }
 
     chart.current = createChart(chartContainerRef.current, {
-      width: chartContainerRef.current.clientWidth,
-      height: chartContainerRef.current.clientHeight,
+      width: chartContainerRef?.current.clientWidth,
+      height: chartContainerRef?.current.clientHeight,
       layout: {
         backgroundColor: "#253248",
         textColor: "rgba(255, 255, 255, 0.9)",
@@ -41,18 +58,6 @@ export default function Home() {
           color: "#334158",
         },
       },
-      // timeScale: {
-      //   rightOffset: 50,
-      //   barSpacing: 10,
-      //   fixLeftEdge: true,
-      //   lockVisibleTimeRangeOnResize: true,
-      //   rightBarStaysOnScroll: true,
-      //   borderVisible: true,
-      //   borderColor: "#fff000",
-      //   visible: true,
-      //   timeVisible: true,
-      //   secondsVisible: true,
-      // },
 
       crosshair: {
         mode: CrosshairMode.Normal,
@@ -100,6 +105,29 @@ export default function Home() {
     });
 
     volumeSeries.setData(temp);
+
+    // getIntervalData();
+  };
+
+  let num = 1;
+  const getIntervalData = () => {
+    setInterval(() => {
+      getTimeData();
+    }, 1000);
+  };
+
+  const getTimeData = async () => {
+    console.log(num);
+    num++;
+    // console.log(lastJsonMessage);
+  };
+
+  const handleClickSendMessage = () => {
+    sendJsonMessage({
+      method: "SUBSCRIBE",
+      params: ["ethusdt@kline_1m"],
+      id: 1,
+    });
   };
 
   useEffect(() => {
@@ -114,53 +142,42 @@ export default function Home() {
     return () => resizeObserver.current.disconnect();
   }, []);
 
-  useEffect(() => {
-    init();
-  }, []);
+  // useEffect(() => {
+  //   if (lastJsonMessage && lastJsonMessage.result !== null) {
+  //     console.log(lastJsonMessage);
+  //     let currentBar = priceData[priceData.length - 1];
 
-  //socket for ticker
-  const [isConnected, setIsConnected] = useState(socket.connected);
-  const [lastPong, setLastPong] = useState(null);
+  //     currentBar.high = lastJsonMessage?.data?.k.h;
+  //     currentBar.low = lastJsonMessage?.data?.k.l;
+  //     setUpdateCandle(currentBar);
+  //     // chart.current.addCandlestickSeries.update(currentBar);
+  //   }
+  // }, [lastJsonMessage]);
 
-  useEffect(() => {
-    socket.on("connect", () => {
-      console.log("connect");
-      setIsConnected(true);
-    });
+  // messageHistory.current = useMemo(
+  //   () => messageHistory.current.concat(lastJsonMessage ?? []),
+  //   [lastJsonMessage]
+  // );
 
-    socket.on("disconnect", () => {
-      setIsConnected(false);
-    });
-
-    socket.on("pong", () => {
-      setLastPong(new Date().toISOString());
-    });
-
-    return () => {
-      socket.off("connect");
-      socket.off("disconnect");
-      socket.off("pong");
-    };
-  }, []);
-
-  const sendPing = () => {
-    socket.emit("ping");
-  };
+  const handleClickUnSendMessage = useCallback(
+    () =>
+      sendJsonMessage({
+        method: "UNSUBSCRIBE",
+        params: ["ethusdt@kline_1m"],
+        id: 1,
+      }),
+    [sendJsonMessage]
+  );
 
   return (
     <div>
       <h2 style={{ marginTop: 20, color: "#fff" }}>Trading View Chart Example</h2>
+      {/* <p style={{ color: "#fff" }}>{JSON.stringify(lastJsonMessage)}</p> */}
       <div
         style={{ width: "100%", height: 700, marginTop: 20 }}
         ref={chartContainerRef}
         className="chart-container"
       />
-
-      <div style={{ color: "#fff" }}>
-        <p>Connected: {"" + isConnected}</p>
-        <p>Last pong: {lastPong || "-"}</p>
-        <button onClick={sendPing}>Send ping</button>
-      </div>
     </div>
   );
 }
