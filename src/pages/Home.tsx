@@ -18,13 +18,16 @@ export default function Home() {
   const [updateCandle, setUpdateCandle] = useState<any>({});
 
   // 움직이는 바 만들기 chart.update 사용?
-  // 1초있다가 캔들 추가해야함..
+  // n시간 있다가 candle bar 추가해야 함
+  // 2초마다 마지막 candle 업데이트 해야함
 
   useEffect(() => {
-    handleClickSendMessage();
-  }, []);
+    sendJsonMessage({
+      method: "SUBSCRIBE",
+      params: ["ethusdt@kline_1m"],
+      id: 1,
+    });
 
-  useEffect(() => {
     init();
   }, []);
 
@@ -110,6 +113,7 @@ export default function Home() {
   };
 
   let num = 1;
+
   const getIntervalData = () => {
     setInterval(() => {
       getTimeData();
@@ -123,11 +127,11 @@ export default function Home() {
   };
 
   const handleClickSendMessage = () => {
-    sendJsonMessage({
-      method: "SUBSCRIBE",
-      params: ["ethusdt@kline_1m"],
-      id: 1,
-    });
+    // sendJsonMessage({
+    //   method: "SUBSCRIBE",
+    //   params: ["ethusdt@kline_1m"],
+    //   id: 1,
+    // });
   };
 
   useEffect(() => {

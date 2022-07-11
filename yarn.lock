@@ -4718,6 +4718,11 @@ react-router@6.3.0:
   dependencies:
     history "^5.2.0"
 
+react-ts-tradingview-widgets@^1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/react-ts-tradingview-widgets/-/react-ts-tradingview-widgets-1.0.11.tgz#bc0ea2ebe5e559cd8e8ee0116ca4d93ca84dc28f"
+  integrity sha512-VTVcFXqC1pecRt9tH3k3AaAPFT170cBLci/bO0GUHmKa6diXout+UIfy0l773hv5lUHntqYzl1UtoqQ9FKZNmg==
+
 react-use-websocket@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/react-use-websocket/-/react-use-websocket-4.2.0.tgz#658c4e44ee5e0fc3d29a66c2a753a72754a5db87"

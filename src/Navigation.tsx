@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, Link, NavLink, useLocation, Router } from
 import Home from "./pages/Home";
 import Page1 from "./pages/Page1";
 import Page2 from "./pages/Page2";
+import Page4 from "./pages/Page4";
 
 export const Navigation = () => {
   const location = useLocation();
@@ -22,6 +23,9 @@ export const Navigation = () => {
             <NavLink className={({ isActive }) => (isActive ? "red" : "white")} to="/page2">
               <h5 style={{ cursor: "pointer" }}>PAGE2</h5>
             </NavLink>
+            <NavLink className={({ isActive }) => (isActive ? "red" : "white")} to="/page3">
+              <h5 style={{ cursor: "pointer" }}>PAGE3</h5>
+            </NavLink>
           </div>
         </div>
 
@@ -30,6 +34,7 @@ export const Navigation = () => {
             <Route path="/" element={<Home />} />
             <Route path="/page1" element={<Page1 />} />
             <Route path="/page2" element={<Page2 />} />
+            <Route path="/page3" element={<Page4 />} />
           </Routes>
         </div>
       </div>
