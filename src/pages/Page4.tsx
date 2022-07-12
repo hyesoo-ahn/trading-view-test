@@ -15,3 +15,4 @@ export default function Page4() {
 }
 
 // https://tradingview-widgets.jorrinkievit.xyz/docs/components/AdvancedRealTimeChartWidget
+// https://www.tradingview.com/widget/advanced-chart/
